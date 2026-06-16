@@ -5,6 +5,7 @@ import connectDB from "./configs/db.js";
 import userRouter from "./routes/userRoutes.js";
 import resumeRouter from "./routes/resumeRoutes.js";
 import aiRouter from "./routes/airoutes.js";
+import { getApiKey } from "./configs/ai.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,7 +37,7 @@ app.get("/", (req, res) => res.send("Server is Live....."));
 app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
-    aiConfigured: Boolean(process.env.OPENAI_API_KEY),
+    aiConfigured: Boolean(getApiKey()),
     dbConfigured: Boolean(process.env.MONGODB_URI),
   });
 });

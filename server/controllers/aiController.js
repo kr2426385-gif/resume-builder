@@ -1,7 +1,5 @@
-import ai from "../configs/ai.js";
+import ai, { aiModel } from "../configs/ai.js";
 import Resume from "../models/Resume.js";
-
-const aiModel = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
 const parseJsonFromAiResponse = (content) => {
   if (!content) {
@@ -20,17 +18,28 @@ const parseJsonFromAiResponse = (content) => {
 };
 
 const handleAiError = (error, res) => {
-  const message = error?.message || "AI request failed";
+  console.error("AI request failed:", error?.status, error?.message);
 
-  if (!process.env.OPENAI_API_KEY) {
+  const message = error?.message || "AI request failed";
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.OPENAI_API_KEY;
+
+  if (!apiKey?.trim()) {
     return res.status(500).json({
-      message: "AI service is not configured on the server. Set OPENAI_API_KEY on Render.",
+      message:
+        "AI service is not configured on the server. Set GEMINI_API_KEY on Render.",
     });
   }
 
-  if (message.includes("401") || message.toLowerCase().includes("api key")) {
+  if (
+    error?.status === 401 ||
+    error?.status === 403 ||
+    message.toLowerCase().includes("unauthenticated") ||
+    message.toLowerCase().includes("access_token_type_unsupported") ||
+    message.toLowerCase().includes("api key not valid")
+  ) {
     return res.status(500).json({
-      message: "Invalid AI API key. Check OPENAI_API_KEY on Render.",
+      message:
+        "Gemini API key was rejected by Google. Create a new key at https://aistudio.google.com/apikey (or GCP Console > APIs & Services > Credentials), then set GEMINI_API_KEY on Render with no quotes or spaces.",
     });
   }
 

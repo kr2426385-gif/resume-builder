@@ -18,11 +18,12 @@ const allowedOrigins = [
 await connectDB()
 
 
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 app.use(cors({
   origin(origin, callback) {
     const isVercelOrigin = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin || "");
-    if (!origin || allowedOrigins.includes(origin) || isVercelOrigin) {
+    const isLocalOrigin = /^http:\/\/(localhost|127\.0\.0\.1):\d+$/i.test(origin || "");
+    if (!origin || allowedOrigins.includes(origin) || isVercelOrigin || isLocalOrigin) {
       callback(null, true);
       return;
     }
@@ -32,6 +33,13 @@ app.use(cors({
 }));
 
 app.get("/", (req, res) => res.send("Server is Live....."));
+app.get("/api/health", (req, res) => {
+  res.json({
+    ok: true,
+    aiConfigured: Boolean(process.env.OPENAI_API_KEY),
+    dbConfigured: Boolean(process.env.MONGODB_URI),
+  });
+});
 app.use("/api/users", userRouter);
 app.use('/api/resumes',resumeRouter);
 app.use('/api/ai',aiRouter)

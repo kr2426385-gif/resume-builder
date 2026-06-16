@@ -3,6 +3,40 @@ import Resume from "../models/Resume.js";
 
 const aiModel = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
+const parseJsonFromAiResponse = (content) => {
+  if (!content) {
+    throw new Error("AI returned an empty response");
+  }
+
+  const trimmed = content.trim();
+  const fencedMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const jsonText = fencedMatch ? fencedMatch[1].trim() : trimmed;
+
+  try {
+    return JSON.parse(jsonText);
+  } catch {
+    throw new Error("AI returned invalid JSON. Please try again.");
+  }
+};
+
+const handleAiError = (error, res) => {
+  const message = error?.message || "AI request failed";
+
+  if (!process.env.OPENAI_API_KEY) {
+    return res.status(500).json({
+      message: "AI service is not configured on the server. Set OPENAI_API_KEY on Render.",
+    });
+  }
+
+  if (message.includes("401") || message.toLowerCase().includes("api key")) {
+    return res.status(500).json({
+      message: "Invalid AI API key. Check OPENAI_API_KEY on Render.",
+    });
+  }
+
+  return res.status(400).json({ message });
+};
+
 // Post: /api/ai/enhance-pro-sum
 export const enhanceProfessionalSummary = async (req, res) => {
   try {
@@ -31,7 +65,7 @@ export const enhanceProfessionalSummary = async (req, res) => {
 
     return res.status(200).json({ enhancedSummary });
   } catch (error) {
-    return res.status(400).json({ message: error.message });
+    return handleAiError(error, res);
   }
 };
 
@@ -61,7 +95,7 @@ export const enhanceJobDescription = async (req, res) => {
 
     return res.status(200).json({ enhancedJobDescription });
   } catch (error) {
-    return res.status(400).json({ message: error.message });
+    return handleAiError(error, res);
   }
 };
 
@@ -132,16 +166,13 @@ Provide data in the following format:
           content: userPromt,
         },
       ],
-      response_format: {
-        type: "json_object",
-      },
     });
     const extractedData = response.choices[0].message.content;
-    const parseData = JSON.parse(extractedData);
+    const parseData = parseJsonFromAiResponse(extractedData);
     const newResume = await Resume.create({ userId, title, ...parseData });
     res.json({ resumeId: newResume._id });
   } catch (error) {
-    return res.status(400).json({ message: error.message });
+    return handleAiError(error, res);
   }
 };
 
@@ -235,6 +266,6 @@ Formatting Guidelines:
       message: "Cover letter generated successfully" 
     });
   } catch (error) {
-    return res.status(400).json({ message: error.message });
+    return handleAiError(error, res);
   }
 };

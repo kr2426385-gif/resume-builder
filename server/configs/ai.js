@@ -1,12 +1,17 @@
 import OpenAI from "openai";
 
-console.log("KEY:", process.env.OPENAI_API_KEY?.slice(0, 10));
-console.log("BASE URL:", process.env.OPENAI_BASE_URL);
-console.log("MODEL:", process.env.OPENAI_MODEL);
+if (!process.env.OPENAI_API_KEY) {
+  console.error("Missing OPENAI_API_KEY. Set it in Render environment variables.");
+}
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-    baseURL: process.env.OPENAI_BASE_URL
-});
+const openaiConfig = {
+  apiKey: process.env.OPENAI_API_KEY,
+};
+
+if (process.env.OPENAI_BASE_URL) {
+  openaiConfig.baseURL = process.env.OPENAI_BASE_URL;
+}
+
+const openai = new OpenAI(openaiConfig);
 
 export default openai;

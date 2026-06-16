@@ -1,0 +1,57 @@
+import  Layout  from './pages/Layout'  // apne file path ke hisab se
+import Home from './pages/Home'   // apne file path ke hisab se
+import { Route, Routes } from 'react-router-dom'
+import Dashboard from './pages/Dashboard'
+import ResumeBuilder from './pages/ResumeBuilder'
+import Login from './pages/Login'
+import Preview from './pages/Preview'
+import { useDispatch } from 'react-redux'
+import { login, setLoading } from './app/features/authSlice'
+import { useEffect } from 'react'
+import api from './configs/api'
+import {Toaster} from 'react-hot-toast'
+
+const App = () => {
+  const dispatch=useDispatch()
+const getUserData=async()=>{
+  const token=localStorage.getItem('token')
+  try{
+    if(token){
+      const{data}= await api.get('/api/users/data',{headers:{Authorization:token}}
+    )
+    if(data.user){
+      dispatch(login({token,user:data.user}))
+    }dispatch(setLoading(false))
+  }else{
+    dispatch(setLoading(false))
+  }
+  }catch(error){
+dispatch(setLoading(false))
+console.log(error.message)
+  }
+}
+
+useEffect(()=>{
+  getUserData();
+},[])
+
+  return (
+    <>
+    <Toaster/>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route  path='app' element={<Layout />}  >
+      <Route index element={<Dashboard />} />
+<Route path="builder/:resumeId" element={<ResumeBuilder />} />
+    
+        </Route>
+
+<Route path='view/:resumeId' element={<Preview/>}/>
+<Route path="login" element={<Login />} />
+
+    </Routes>
+    </>
+  )
+}
+
+export default App

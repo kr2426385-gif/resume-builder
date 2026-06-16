@@ -1,0 +1,13 @@
+import * as lucide from "lucide-react";
+console.log("Share2Icon exists:", "Share2Icon" in lucide);
+console.log("Share2 exists:", "Share2" in lucide);
+console.log("DownloadIcon exists:", "DownloadIcon" in lucide);
+console.log("Download exists:", "Download" in lucide);
+console.log("ArrowLeftIcon exists:", "ArrowLeftIcon" in lucide);
+console.log("ArrowLeft exists:", "ArrowLeft" in lucide);
+console.log("EyeIcon exists:", "EyeIcon" in lucide);
+console.log("Eye exists:", "Eye" in lucide);
+console.log("EyeOffIcon exists:", "EyeOffIcon" in lucide);
+console.log("EyeOff exists:", "EyeOff" in lucide);
+console.log("FolderIcon exists:", "FolderIcon" in lucide);
+console.log("Folder exists:", "Folder" in lucide);

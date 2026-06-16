@@ -1,0 +1,4 @@
+- [ ] Fix the AI enhancement error by changing the model to `gemini-2.5-flash` in the backend environment configuration.
+- [ ] Clean up the temporary test file `server/test_ai.js`.
+- [ ] Redesign `client/src/pages/Login.jsx` to be a modern, highly aesthetic login/signup page.
+- [ ] Verify both features (AI enhance and the Login UI/workflow) are working perfectly.
